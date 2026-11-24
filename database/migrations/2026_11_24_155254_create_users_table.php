@@ -17,6 +17,14 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            
+            // --- NOS AJOUTS POUR LE PROJET ---
+            $table->foreignId('role_id')->constrained('roles');
+            $table->foreignId('departement_id')->nullable()->constrained('departements')->onDelete('set null');
+            $table->foreignId('filiere_id')->nullable()->constrained('filieres')->onDelete('set null');
+            $table->boolean('actif')->default(true);
+            // ---------------------------------
+            
             $table->rememberToken();
             $table->timestamps();
         });
@@ -42,8 +50,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
+        // On supprime d'abord les tables qui dépendent des autres
         Schema::dropIfExists('sessions');
+        Schema::dropIfExists('password_reset_tokens');
+        Schema::dropIfExists('users');
     }
 };
