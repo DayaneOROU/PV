@@ -51,11 +51,63 @@
 
         <!-- Section OCR -->
         <div style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <h3 style="font-size: 1.2rem; font-weight: bold; margin-bottom: 0.5rem;">Transcription OCR</h3>
-            <p style="color: gray; margin-bottom: 1rem;">Cette fonctionnalité sera bientôt disponible.</p>
-            <button disabled style="padding: 0.5rem 1rem; background: #e5e7eb; color: #9ca3af; border: none; border-radius: 4px; cursor: not-allowed;">
-                Lancer la transcription (Bientôt)
-            </button>
+            <h3 style="font-size: 1.2rem; font-weight: bold; margin-bottom: 1rem;">Transcription OCR</h3>
+            
+            {{-- CAS 1 : Le traitement est en cours --}}
+            @if($pv->ocr && $pv->ocr->statut === 'en_cours')
+                <div style="background: #fffbeb; border: 1px solid #f59e0b; padding: 1rem; border-radius: 4px;">
+                    <p style="color: #b45309; font-weight: bold; margin: 0;">
+                        ⏳ Traitement en cours... 
+                    </p>
+                    <p style="color: #b45309; font-size: 0.9rem; margin-top: 0.5rem;">
+                        Le document est en train d'être analysé. Actualisez la page dans quelques instants.
+                    </p>
+                </div>
+
+            {{-- CAS 2 : Le traitement est terminé --}}
+            @elseif($pv->ocr && $pv->ocr->statut === 'termine')
+                <div style="background: #ecfdf5; border: 1px solid #10b981; padding: 1rem; border-radius: 4px;">
+                    <p style="color: #047857; font-weight: bold; margin: 0 0 1rem 0;">
+                        ✅ Transcription terminée ! ({{ $pv->ocr->matricules->count() }} matricules détectés)
+                    </p>
+                    
+                    @if($pv->ocr->matricules->count() > 0)
+                        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px;">
+                            @foreach($pv->ocr->matricules as $matricule)
+                                <div style="background: white; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; font-family: monospace; text-align: center;">
+                                    {{ $matricule->matricule }}
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p style="color: #b45309;">Aucun matricule n'a pu être extrait du document.</p>
+                    @endif
+                </div>
+
+            {{-- CAS 3 : Echec du traitement --}}
+            @elseif($pv->ocr && $pv->ocr->statut === 'echoue')
+                <div style="background: #fef2f2; border: 1px solid #ef4444; padding: 1rem; border-radius: 4px; margin-bottom: 1rem;">
+                    <p style="color: #b91c1c; font-weight: bold; margin: 0;">
+                        ❌ La transcription a échoué.
+                    </p>
+                </div>
+                <form action="{{ route('pvs.ocr', $pv) }}" method="POST">
+                    @csrf
+                    <button type="submit" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Réessayer la transcription
+                    </button>
+                </form>
+
+            {{-- CAS 4 : Aucun traitement lancé --}}
+            @else
+                <p style="color: gray; margin-bottom: 1rem;">Lancez l'OCR pour extraire les matricules automatiquement.</p>
+                <form action="{{ route('pvs.ocr', $pv) }}" method="POST">
+                    @csrf
+                    <button type="submit" style="padding: 0.5rem 1rem; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        Lancer la transcription
+                    </button>
+                </form>
+            @endif
         </div>
 
     </div>

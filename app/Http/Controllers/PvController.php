@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Jobs\ProcessOcrJob; 
 
 class PvController extends Controller
 {
@@ -107,6 +108,18 @@ class PvController extends Controller
 
         return view('pvs.recherche', compact('matricule', 'pvs'));
     }
+
+
+
+    public function lancerOcr(Pv $pv)
+    {
+        // On dispatch le Job en arrière-plan
+        ProcessOcrJob::dispatch($pv);
+
+        return redirect()->back()->with('success', 'La transcription OCR a été lancée en arrière-plan !');
+    }
+
+
     public function destroy(Pv $pv)
     {
         // On supprime le fichier physique du serveur
