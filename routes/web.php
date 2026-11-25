@@ -3,7 +3,10 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\UserController;
-
+use App\Http\Controllers\Admin\DepartementController;
+use App\Http\Controllers\Admin\FiliereController;
+use App\Http\Controllers\Admin\NiveauController;
+use App\Http\Controllers\Admin\AnneeAcademiqueController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -29,5 +32,13 @@ Route::middleware('auth')->group(function () {
         // etc.
     });
 });
-
+Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('users', UserController::class);
+    
+    // Les nouveaux CRUD
+    Route::resource('departements', DepartementController::class);
+    Route::resource('filieres', FiliereController::class);
+    Route::resource('niveaux', NiveauController::class);
+    Route::resource('annees', AnneeAcademiqueController::class); 
+});
 require __DIR__.'/auth.php';
