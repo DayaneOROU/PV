@@ -18,6 +18,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::resource('pvs', PvController::class);
+
+
+    Route::get('/recherche', [PvController::class, 'recherche'])->name('pvs.recherche');
 });
 
 

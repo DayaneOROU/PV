@@ -17,14 +17,22 @@ class PvController extends Controller
     // 1. Afficher la liste des PV
     public function index()
     {
-        // On récupère les PV avec leurs relations, les plus récents d'abord
-        $pvs = Pv::with(['filiere', 'niveau', 'anneeAcademique', 'uploader'])
-                 ->latest()
-                 ->paginate(10);
-                 
+        $user = Auth::user();
+        
+        // On prépare la requête de base
+        $query = Pv::with(['filiere', 'niveau', 'anneeAcademique', 'uploader']);
+
+        // Si ce n'est pas un admin, on filtre par le département de l'utilisateur
+        if ($user->role->code !== 'admin' && $user->departement_id) {
+            $query->whereHas('filiere', function ($q) use ($user) {
+                $q->where('departement_id', $user->departement_id);
+            });
+        }
+
+        $pvs = $query->latest()->paginate(10);
+                
         return view('pvs.index', compact('pvs'));
     }
-
     // 2. Afficher le formulaire de création
     public function create()
     {
@@ -80,5 +88,35 @@ class PvController extends Controller
     public function show(Pv $pv)
     {
         return view('pvs.show', compact('pv'));
+    }
+
+    public function recherche(Request $request)
+    {
+        $matricule = $request->input('matricule');
+        $pvs = collect(); // Collection vide par défaut
+
+        if ($matricule) {
+            // On cherche les PV qui contiennent ce matricule dans leur OCR
+            $pvs = Pv::whereHas('ocr.matricules', function ($query) use ($matricule) {
+                $query->where('matricule', 'like', '%' . $matricule . '%');
+            })->with(['filiere', 'niveau', 'anneeAcademique'])->get();
+            
+            // Note : pour l'instant, la table pv_ocr_matricules est vide, 
+            // donc la recherche ne renverra rien. C'est normal.
+        }
+
+        return view('pvs.recherche', compact('matricule', 'pvs'));
+    }
+    public function destroy(Pv $pv)
+    {
+        // On supprime le fichier physique du serveur
+        if (Storage::disk('public')->exists($pv->fichier_path)) {
+            Storage::disk('public')->delete($pv->fichier_path);
+        }
+
+        // On supprime l'enregistrement en base de données (Soft Delete grâce au trait)
+        $pv->delete();
+
+        return redirect()->route('pvs.index')->with('success', 'Le PV a été supprimé avec succès.');
     }
 }
