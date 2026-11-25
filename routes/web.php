@@ -23,6 +23,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/recherche', [PvController::class, 'recherche'])->name('pvs.recherche');
 
     Route::post('/pvs/{pv}/ocr', [PvController::class, 'lancerOcr'])->name('pvs.ocr');
+Route::get('/naila', function () {
+    return view('naila');
+});
+
 });
 
 
