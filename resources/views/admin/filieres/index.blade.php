@@ -1,46 +1,88 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Filières</h2>
-            <a href="{{ route('admin.filieres.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Nouvelle</a>
-        </div>
-    </x-slot>
+@extends('layout')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if(session('success'))
-                <div class="bg-green-100 text-green-700 p-4 mb-4 rounded">{{ session('success') }}</div>
-            @endif
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b bg-gray-50">
-                            <th class="py-3 px-2">Nom</th>
-                            <th class="py-3 px-2">Code</th>
-                            <th class="py-3 px-2">Département</th>
-                            <th class="py-3 px-2">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($filieres as $filiere)
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="py-3 px-2">{{ $filiere->nom }}</td>
-                            <td class="py-3 px-2">{{ $filiere->code }}</td>
-                            <td class="py-3 px-2">{{ $filiere->departement->nom ?? 'N/A' }}</td>
-                            <td class="py-3 px-2 flex gap-3">
-                                <a href="{{ route('admin.filieres.edit', $filiere) }}" class="text-blue-600 hover:underline">Modifier</a>
-                                <form action="{{ route('admin.filieres.destroy', $filiere) }}" method="POST" onsubmit="return confirm('Supprimer ?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:underline">Supprimer</button>
-                                </form>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="4" class="py-4 text-center">Aucune filière.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+@section('title', 'Filières - ENEAM')
+@section('heading', 'Gestion des Filières')
+@section('subheading', 'Administration des filières académiques de l\'ENEAM')
+
+@section('content')
+<div class="max-w-7xl mx-auto space-y-6">
+
+    @if(session('success'))
+        <div class="alert-custom alert-success">
+            <svg class="i" style="color: #10b981;" aria-hidden="true"><use href="#check-circle"/></svg>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    <div class="card-box">
+        <div class="card-box-header">
+            <div>
+                <h2 class="card-box-title">Liste des Filières</h2>
+                <p class="card-box-subtitle">Consultez, ajoutez et gérez les filières universitaires</p>
             </div>
+            <a href="{{ route('admin.filieres.create') }}" class="btn-pri">
+                <svg class="i" aria-hidden="true"><use href="#plus"/></svg>
+                <span>Nouvelle Filière</span>
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Nom de la filière</th>
+                        <th>Code</th>
+                        <th>Département</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($filieres as $filiere)
+                    <tr>
+                        <td style="font-weight: 600; color: #1e293b;">
+                            {{ $filiere->nom }}
+                        </td>
+                        <td>
+                            @if($filiere->code)
+                                <span class="badge-pill">{{ $filiere->code }}</span>
+                            @else
+                                <span style="color: #94a3b8;">—</span>
+                            @endif
+                        </td>
+                        <td>
+                            <div style="display: inline-flex; align-items: center; gap: 6px; color: #475569;">
+                                <svg class="i" style="width: 16px; height: 16px; color: #64748b;" aria-hidden="true"><use href="#building"/></svg>
+                                <span>{{ $filiere->departement->nom ?? 'Non assigné' }}</span>
+                            </div>
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 8px; justify-content: flex-end;">
+                                <a href="{{ route('admin.filieres.edit', $filiere) }}" class="btn-action" title="Modifier" aria-label="Modifier">
+                                    <svg class="i" aria-hidden="true"><use href="#edit"/></svg>
+                                </a>
+                                <form action="{{ route('admin.filieres.destroy', $filiere) }}" method="POST" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette filière ?')" style="display: inline;">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn-action btn-action-del" title="Supprimer" aria-label="Supprimer">
+                                        <svg class="i" aria-hidden="true"><use href="#trash"/></svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <svg class="i" aria-hidden="true"><use href="#layers"/></svg>
+                                <h4>Aucune filière trouvée</h4>
+                                <p style="font-size: 13px; margin-top: 4px;">Commencez par ajouter votre première filière académique.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
-</x-app-layout>
+</div>
+@endsection
