@@ -1,51 +1,90 @@
-<x-app-layout>
-    <x-slot name="header">
-        <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">Années Académiques</h2>
-            <a href="{{ route('admin.annees.create') }}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">+ Nouvelle</a>
-        </div>
-    </x-slot>
+@extends('layout')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            @if(session('success'))
-                <div class="bg-green-100 text-green-700 p-4 mb-4 rounded">{{ session('success') }}</div>
-            @endif
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b bg-gray-50">
-                            <th class="py-3 px-2">Libellé</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($annees as $annee)
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="py-3 px-2">{{ $annee->libelle }}</td>
-                            <td class="py-3 px-2">{{ \Carbon\Carbon::parse($annee->date_debut)->format('d/m/Y') }}</td>
-                            <td class="py-3 px-2">{{ \Carbon\Carbon::parse($annee->date_fin)->format('d/m/Y') }}</td>
-                            <td class="py-3 px-2">
-                                @if($annee->est_active)
-                                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-2 py-1 rounded">Active</span>
-                                @else
-                                    <span class="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">Inactive</span>
-                                @endif
-                            </td>
-                            <td class="py-3 px-2 flex gap-3">
-                                <a href="{{ route('admin.annees.edit', $annee) }}" class="text-blue-600 hover:underline">Modifier</a>
-                                <form action="{{ route('admin.annees.destroy', $annee) }}" method="POST" onsubmit="return confirm('Supprimer ?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:underline">Supprimer</button>
-                                </form>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr><td colspan="5" class="py-4 text-center">Aucune année.</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
+@section('title', 'Années Académiques - ENEAM')
+@section('heading', 'Années Académiques')
+@section('subheading', 'Gestion et activation des années universitaires')
+
+@section('content')
+<div class="max-w-7xl mx-auto space-y-6">
+
+    @if(session('success'))
+        <div class="alert-custom alert-success">
+            <svg class="i" style="color: #10b981;" aria-hidden="true"><use href="#check-circle"/></svg>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
+    <div class="card-box">
+        <div class="card-box-header">
+            <div>
+                <h2 class="card-box-title">Liste des Années Académiques</h2>
+                <p class="card-box-subtitle">Définissez l'année active sur laquelle portent les procès-verbaux</p>
             </div>
+            <a href="{{ route('admin.annees.create') }}" class="btn-pri">
+                <svg class="i" aria-hidden="true"><use href="#plus"/></svg>
+                <span>Nouvelle Année</span>
+            </a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th>Libellé de l'année</th>
+                        <th>Statut</th>
+                        <th style="text-align: right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($annees as $annee)
+                    <tr>
+                        <td style="font-weight: 600; color: #1e293b; font-size: 15px;">
+                            <div style="display: inline-flex; align-items: center; gap: 8px;">
+                                <svg class="i" style="color: var(--pri);" aria-hidden="true"><use href="#calendar"/></svg>
+                                <span>{{ $annee->libelle }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            @if($annee->est_active)
+                                <span class="badge-status badge-active">
+                                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #16a34a;"></span>
+                                    En cours (Active)
+                                </span>
+                            @else
+                                <span class="badge-status badge-inactive">
+                                    <span style="width: 7px; height: 7px; border-radius: 50%; background: #94a3b8;"></span>
+                                    Inactive
+                                </span>
+                            @endif
+                        </td>
+                        <td style="text-align: right;">
+                            <div style="display: inline-flex; gap: 8px; justify-content: flex-end;">
+                                <a href="{{ route('admin.annees.edit', $annee) }}" class="btn-action" title="Modifier" aria-label="Modifier">
+                                    <svg class="i" aria-hidden="true"><use href="#edit"/></svg>
+                                </a>
+                                <form action="{{ route('admin.annees.destroy', $annee) }}" method="POST" onsubmit="return confirm('Supprimer cette année académique ?')" style="display: inline;">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn-action btn-action-del" title="Supprimer" aria-label="Supprimer">
+                                        <svg class="i" aria-hidden="true"><use href="#trash"/></svg>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="3">
+                            <div class="empty-state">
+                                <svg class="i" aria-hidden="true"><use href="#calendar"/></svg>
+                                <h4>Aucune année enregistrée</h4>
+                                <p style="font-size: 13px; margin-top: 4px;">Créez la première année académique pour démarrer la gestion.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
-</x-app-layout>
+</div>
+@endsection

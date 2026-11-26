@@ -7,11 +7,9 @@ use App\Http\Controllers\Admin\DepartementController;
 use App\Http\Controllers\Admin\FiliereController;
 use App\Http\Controllers\Admin\NiveauController;
 use App\Http\Controllers\Admin\AnneeAcademiqueController;
-Route::get('/', function () {
-    return view('welcome');
-});
 
-Route::get('/dashboard', function () {
+
+Route::get('/', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 

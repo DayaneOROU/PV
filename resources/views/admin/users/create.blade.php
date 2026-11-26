@@ -1,58 +1,73 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Nouvel Utilisateur
-        </h2>
-    </x-slot>
+@extends('layout')
 
-    <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <form method="POST" action="{{ route('admin.users.store') }}">
-                    @csrf
-                    
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-bold mb-2">Nom complet</label>
-                        <input type="text" name="name" value="{{ old('name') }}" class="w-full border-gray-300 rounded-md shadow-sm" required>
-                        @error('name') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                    </div>
+@section('title', 'Nouvel Utilisateur - ENEAM')
+@section('heading', 'Nouvel Utilisateur')
+@section('subheading', 'Création d\'un compte d\'accès à la plateforme')
 
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-bold mb-2">Adresse Email</label>
-                        <input type="email" name="email" value="{{ old('email') }}" class="w-full border-gray-300 rounded-md shadow-sm" required>
-                        @error('email') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                    </div>
+@section('content')
+<div class="max-w-3xl mx-auto space-y-6">
 
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-bold mb-2">Rôle</label>
-                        <select name="role_id" class="w-full border-gray-300 rounded-md shadow-sm" required>
-                            <option value="">-- Choisir un rôle --</option>
-                            @foreach($roles as $role)
-                                <option value="{{ $role->id }}" @selected(old('role_id') == $role->id)>
-                                    {{ $role->nom }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('role_id') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-bold mb-2">Mot de passe</label>
-                        <input type="password" name="password" class="w-full border-gray-300 rounded-md shadow-sm" required>
-                        @error('password') <span class="text-red-500 text-sm">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-gray-700 font-bold mb-2">Confirmer le mot de passe</label>
-                        <input type="password" name="password_confirmation" class="w-full border-gray-300 rounded-md shadow-sm" required>
-                    </div>
-
-                    <div class="flex items-center gap-4">
-                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Créer l'utilisateur</button>
-                        <a href="{{ route('admin.users.index') }}" class="text-gray-600 hover:underline">Annuler</a>
-                    </div>
-                </form>
+    <div class="card-box">
+        <div class="card-box-header">
+            <div>
+                <h2 class="card-box-title">Formulaire de création</h2>
+                <p class="card-box-subtitle">Renseignez les coordonnées et le niveau de permissions</p>
             </div>
+            <a href="{{ route('admin.users.index') }}" class="btn-sec">
+                <svg class="i" aria-hidden="true"><use href="#arrow-left"/></svg>
+                <span>Retour à la liste</span>
+            </a>
+        </div>
+
+        <div class="card-box-body">
+            <form method="POST" action="{{ route('admin.users.store') }}">
+                @csrf
+
+                <div class="form-group">
+                    <label class="form-label" for="name">Nom complet <span style="color: #ef4444;">*</span></label>
+                    <input type="text" id="name" name="name" value="{{ old('name') }}" class="form-control-custom" placeholder="ex: Jean Dupont" required>
+                    @error('name') <p style="color: #ef4444; font-size: 13px; margin-top: 6px;">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Adresse email <span style="color: #ef4444;">*</span></label>
+                    <input type="email" id="email" name="email" value="{{ old('email') }}" class="form-control-custom" placeholder="ex: j.dupont@eneam.uac.bj" required>
+                    @error('email') <p style="color: #ef4444; font-size: 13px; margin-top: 6px;">{{ $message }}</p> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="role_id">Rôle attribué <span style="color: #ef4444;">*</span></label>
+                    <select id="role_id" name="role_id" class="form-control-custom" required>
+                        <option value="">-- Sélectionnez un rôle --</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->id }}" @selected(old('role_id') == $role->id)>{{ $role->nom }}</option>
+                        @endforeach
+                    </select>
+                    @error('role_id') <p style="color: #ef4444; font-size: 13px; margin-top: 6px;">{{ $message }}</p> @enderror
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label class="form-label" for="password">Mot de passe <span style="color: #ef4444;">*</span></label>
+                        <input type="password" id="password" name="password" class="form-control-custom" required>
+                        @error('password') <p style="color: #ef4444; font-size: 13px; margin-top: 6px;">{{ $message }}</p> @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="password_confirmation">Confirmer le mot de passe <span style="color: #ef4444;">*</span></label>
+                        <input type="password" id="password_confirmation" name="password_confirmation" class="form-control-custom" required>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 12px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--bd);">
+                    <button type="submit" class="btn-pri">
+                        <svg class="i" aria-hidden="true"><use href="#check-circle"/></svg>
+                        <span>Créer le compte</span>
+                    </button>
+                    <a href="{{ route('admin.users.index') }}" class="btn-sec">Annuler</a>
+                </div>
+            </form>
         </div>
     </div>
-</x-app-layout>
+</div>
+@endsection
